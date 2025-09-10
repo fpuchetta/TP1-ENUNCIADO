@@ -1,10 +1,13 @@
 #include "tp1.h"
 #include <stdio.h>
+#include <string.h>
 
 #include "archivo.h"
 
 #define COLUMNAS_CSV 6
 #define MAX_TIPO 4
+#define FACTOR_AUMENTO_TAMANIO 2
+#define CAPACIDAD_MINIMA 10
 
 typedef enum {
     ERROR_PARSEO= -2,
@@ -13,7 +16,8 @@ typedef enum {
 
 struct tp1{
     struct pokemon **pokemones;
-	int cantidad_pokemones;
+	size_t cantidad_pokemones;
+    size_t capacidad;
 };
 
 /*
@@ -69,6 +73,25 @@ size_t contar_largo_tipo(const char* linea) {
     return (size_t)(tercero - (segundo + 1));
 }
 
+int parsear_tipo(const char tipo[MAX_TIPO]) {
+    if (strcmp(tipo, "ELEC") == 0) return TIPO_ELEC;
+    if (strcmp(tipo, "FUEG") == 0) return TIPO_FUEG;
+    if (strcmp(tipo, "PLAN") == 0) return TIPO_PLAN;
+    if (strcmp(tipo, "AGUA") == 0) return TIPO_AGUA;
+    if (strcmp(tipo, "NORM") == 0) return TIPO_NORM;
+    if (strcmp(tipo, "FANT") == 0) return TIPO_FANT;
+    if (strcmp(tipo, "PSI") == 0) return TIPO_PSI;
+    if (strcmp(tipo, "LUCH") == 0) return TIPO_LUCH;
+
+    return ERROR_PARSEO;  // no coincide con ninguno
+}
+
+void destruir_pokemon(struct pokemon *p) {
+    if (!p) return;
+    free(p->nombre);
+    free(p);
+}
+
 /**
  * Dado un string en formato CSV (mirar enunciado), crea un pokemon con los
  * datos del mismo. Devuelve el pokemon creado o NULL en caso de error.
@@ -90,9 +113,8 @@ struct pokemon *parsear_pokemon(const char *linea,int* estado_error){
     }
 
     size_t largo_tipo=contar_largo_tipo(linea);
-    if (largo_tipo > MAX_TIPO){
-        free(pokemon->nombre);
-        free(pokemon);
+    if (largo_tipo >= MAX_TIPO){
+        destruir_pokemon(pokemon);
         *estado_error=ERROR_PARSEO;
         return NULL;
     }
@@ -101,14 +123,12 @@ struct pokemon *parsear_pokemon(const char *linea,int* estado_error){
 
     int columnas_leidas= sscanf(linea, "%u;%[^;];%[^;];%u;%u;%u", &pokemon->id,pokemon->nombre, tipo_aux,&pokemon->ataque, &pokemon->defensa,&pokemon->velocidad);
     if (columnas_leidas != COLUMNAS_CSV){
-        free(pokemon->nombre);
-        free(pokemon);
+        destruir_pokemon(pokemon);
         return NULL;
     }
 
-    if ((pokemon->tipo=cargar_tipo(pokemon,tipo_aux))==ERROR_PARSEO){
-        free(pokemon->nombre);
-        free(pokemon);
+    if ((pokemon->tipo=parsear_tipo(tipo_aux))==ERROR_PARSEO){
+        destruir_pokemon(pokemon);
         *estado_error=ERROR_PARSEO;
         return NULL;
     }
@@ -116,7 +136,21 @@ struct pokemon *parsear_pokemon(const char *linea,int* estado_error){
     return pokemon;
 }
 
-bool cargar_pokemon()
+bool cargar_pokemon(struct pokemon* p, tp1_t* tp1){
+    if (tp1->cantidad_pokemones == tp1->capacidad) {
+        size_t nueva_cap = tp1->capacidad ? tp1->capacidad * FACTOR_AUMENTO_TAMANIO : CAPACIDAD_MINIMA;  // arranca con 4
+        
+        struct pokemon **temp = realloc(tp1->pokemones, nueva_cap * sizeof(struct pokemon*));
+        if (!temp) return false;
+
+        tp1->pokemones = temp;
+        tp1->capacidad = nueva_cap;
+    }
+
+    tp1->pokemones[tp1->cantidad_pokemones] = p;  // lo guardo en la posición libre
+    tp1->cantidad_pokemones++;                    // incremento cantidad cargada
+    return true;
+}
 
 /*
     Pre: Los parametros no deben ser NULL.
@@ -126,12 +160,25 @@ bool cargar_pokemones(archivo_t* archivo, tp1_t* tp1){
     const char* linea_proxima;
     int estado_actual=0;
     while ((linea_proxima = archivo_leer_linea(archivo)) != NULL) {
-        struct pokemon* p=parsear_pokemon(linea_proxima,estado_actual);
-        if (!p && estado_actual==ERROR_MEMORIA)
-            return false;
-        else if (p){
-            if (!cargar_pokemon(p)) return false;// no se permiten duplicados
-            tp1->cantidad_pokemones++;
+        struct pokemon* p=parsear_pokemon(linea_proxima,&estado_actual);
+        bool agregado = false;
+        if (p) {
+            if (tp1_buscar_id(tp1, p->id) == NULL) {
+                if (cargar_pokemon(p, tp1)) {
+                    agregado = true;
+                    estado_actual = 0;
+                }else
+                    estado_actual = ERROR_MEMORIA;
+            }
+            if (!agregado)
+                destruir_pokemon(p);
+            if (estado_actual == ERROR_MEMORIA)
+                return false;
+
+        }else {
+            if (estado_actual == ERROR_MEMORIA)
+                return false;
+            estado_actual = 0;
         }
     }
     return true;
@@ -144,7 +191,7 @@ bool cargar_pokemones(archivo_t* archivo, tp1_t* tp1){
 tp1_t *tp1_leer_archivo(const char *nombre){
     if (!nombre) return NULL;
 
-    tp1_t* pokedex=malloc(sizeof(tp1_t));
+    tp1_t* pokedex=calloc(1,sizeof(tp1_t));
     if (!pokedex) return NULL;
 
     archivo_t* archivo= abrir_archivo(nombre);
@@ -154,10 +201,12 @@ tp1_t *tp1_leer_archivo(const char *nombre){
     }
 
     if (!cargar_pokemones(archivo,pokedex)){
-        free(pokedex);
+        tp1_destruir(pokedex);
         archivo_cerrar(archivo);
         return NULL;
     }
+
+    ordenar_pokemones(pokedex);
 
     return pokedex;
 }
@@ -166,7 +215,10 @@ tp1_t *tp1_leer_archivo(const char *nombre){
  * Devuevle la cantidad de pokemones leidos correctamente.
  * En caso de error devuelve 0.
 */
-size_t tp1_cantidad(tp1_t *tp1);
+size_t tp1_cantidad(tp1_t *tp1){
+    if (!tp1) return 0;
+    return tp1->cantidad_pokemones;
+}
 
 /**
  * Guarda en el archivo indicado los pokemones contenidos en la estructura tp1 
