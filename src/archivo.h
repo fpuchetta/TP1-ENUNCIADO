@@ -18,6 +18,13 @@ archivo_t *archivo_abrir(const char *nombre);
 const char *archivo_leer_linea(archivo_t *archivo);
 
 /**
+ * Lee una línea del archivo.
+ * 
+ * Devuelve un puntero a la línea leída, o NULL si no hay más líneas.
+ */
+const char *archivo_escribir_linea(archivo_t *archivo,const char* linea);
+
+/**
  * Indica si hay más líneas por leer en el archivo.
  * 
  * Devuelve 1 si hay más líneas, 0 en caso contrario.
