@@ -41,10 +41,10 @@ size_t buscar_largo_nombre(const char *linea)
 	return (size_t)(fin - inicio);
 }
 
-size_t reservar_memoria_nombre(const char *linea,char* nombre)
+size_t reservar_memoria_nombre(const char *linea, char *nombre)
 {
 	size_t largo_nombre = buscar_largo_nombre(linea);
-	if (largo_nombre == 0){
+	if (largo_nombre == 0) {
 		return 0;
 	}
 	nombre = malloc(largo_nombre + 1);
@@ -84,11 +84,12 @@ struct pokemon *reservar_memoria_parseo(const char *linea, int *estado_error)
 		return NULL;
 	}
 
-	size_t largo_nombre=reservar_memoria_nombre(linea,pokemon->nombre);
+	size_t largo_nombre = reservar_memoria_nombre(linea, pokemon->nombre);
 	if (!pokemon->nombre) {
 		free(pokemon);
 		*estado_error = ERROR_MEMORIA;
-		if(largo_nombre==0) *estado_error=ERROR_PARSEO;
+		if (largo_nombre == 0)
+			*estado_error = ERROR_PARSEO;
 		return NULL;
 	}
 
@@ -226,7 +227,6 @@ bool cargar_pokemones(archivo_t *archivo, tp1_t *tp1)
 	const char *linea_proxima;
 	int estado_actual = 0;
 	while (archivo_hay_mas_lineas(archivo)) {
-		estado_actual=0;
 		linea_proxima = archivo_leer_linea(archivo);
 		struct pokemon *p =
 			parsear_pokemon(linea_proxima, &estado_actual);

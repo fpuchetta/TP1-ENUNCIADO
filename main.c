@@ -32,7 +32,8 @@ int main(int argc, char *argv[])
 		printf("Error al abrir el archivo %s\n", argv[1]);
 		return 1;
 	}
-	printf("Tp1 con csv %s tiene: %li pokemons\n",argv[1],tp1_cantidad(pokedex1));
+	printf("Tp1 con csv %s tiene: %li pokemons\n", argv[1],
+	       tp1_cantidad(pokedex1));
 
 	tp1_destruir(pokedex1);
 	return 0;
