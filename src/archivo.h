@@ -8,7 +8,7 @@ typedef struct archivo archivo_t;
  * 
  * Devuelve el archivo si se pudo abrir, NULL en caso contrario.
  */
-archivo_t *archivo_abrir(const char *nombre,const char* modo);
+archivo_t *archivo_abrir(const char *nombre, const char *modo);
 
 /**
  * Lee una línea del archivo.
@@ -22,7 +22,7 @@ const char *archivo_leer_linea(archivo_t *archivo);
  * 
  * Devuelve true si se pudo escribir, false en caso contrario.
  */
-bool archivo_escribir_linea(archivo_t *archivo,const char* linea);
+bool archivo_escribir_linea(archivo_t *archivo, const char *linea);
 
 /**
  * Indica si hay más líneas por leer en el archivo.

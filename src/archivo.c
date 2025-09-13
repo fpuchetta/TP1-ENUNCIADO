@@ -15,7 +15,7 @@ struct archivo {
 	int final_archivo;
 };
 
-archivo_t *archivo_abrir(const char *nombre,const char* modo)
+archivo_t *archivo_abrir(const char *nombre, const char *modo)
 {
 	if (nombre == NULL)
 		return NULL;
@@ -118,12 +118,15 @@ const char *archivo_leer_linea(archivo_t *archivo)
  * 
  * Devuelve true si se pudo escribir, false en caso contrario.
  */
-bool archivo_escribir_linea(archivo_t *archivo,const char* linea){
-	if (!archivo || !linea) return NULL;
+bool archivo_escribir_linea(archivo_t *archivo, const char *linea)
+{
+	if (!archivo || !linea)
+		return NULL;
 
-	int estado=fputs(linea,archivo->apertura);
-	if (estado==EOF) return false;
-	
+	int estado = fputs(linea, archivo->apertura);
+	if (estado == EOF)
+		return false;
+
 	return true;
 }
 

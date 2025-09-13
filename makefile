@@ -8,4 +8,4 @@ pruebas: $(SRC) pruebas_alumno.c
 	gcc $(CFLAGS) $^ -o $@
 
 clean:
-	rm -f abb
+	rm -f pruebas tp1
