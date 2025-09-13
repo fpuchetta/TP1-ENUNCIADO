@@ -27,15 +27,28 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	tp1_t *pokedex = tp1_leer_archivo(argv[1]);
-	if (!pokedex) {
+	tp1_t *pokedex1 = tp1_leer_archivo(argv[1]);
+	if (!pokedex1) {
 		printf("Error al abrir el archivo %s\n", argv[1]);
 		return 1;
 	}
 	
-	tp1_con_cada_pokemon(pokedex,pokedex_mostrar_nombres,NULL);
+	tp1_t *pokedex2 = tp1_leer_archivo(argv[2]);
+	if (!pokedex2) {
+		printf("Error al abrir el archivo %s\n", argv[2]);
+		return 1;
+	}
+	
+	
+	tp1_t* uniontps=tp1_union(pokedex1,pokedex1);
+	if (!uniontps){
+		printf("error union con el mismo tp\n");
+	}
+	//tp1_guardar_archivo(uniontps,"interseccion.csv");
 
-	tp1_destruir(pokedex);
+	tp1_destruir(pokedex1);
+	tp1_destruir(pokedex2);
+	tp1_destruir(uniontps);
 	printf("Finalizacion correcta\n");
 
 	return 0;

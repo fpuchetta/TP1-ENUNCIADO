@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "archivo.h"
 
 const int TAM_LINEA_INICIAL = 0;
@@ -14,15 +15,14 @@ struct archivo {
 	int final_archivo;
 };
 
-archivo_t *archivo_abrir(const char *nombre)
+archivo_t *archivo_abrir(const char *nombre,const char* modo)
 {
 	if (nombre == NULL)
 		return NULL;
 	archivo_t *archivo_abierto = malloc(sizeof(archivo_t));
 	if (archivo_abierto == NULL)
 		return NULL;
-
-	archivo_abierto->apertura = fopen(nombre, "r");
+	archivo_abierto->apertura = fopen(nombre, modo);
 	if (archivo_abierto->apertura == NULL) {
 		free(archivo_abierto);
 		return NULL;
@@ -111,6 +111,20 @@ const char *archivo_leer_linea(archivo_t *archivo)
 		quitar_salto_de_linea(archivo, tam_linea_leida);
 	}
 	return archivo->linea_leida;
+}
+
+/**
+ * Escribe una linea en el archivo.
+ * 
+ * Devuelve true si se pudo escribir, false en caso contrario.
+ */
+bool archivo_escribir_linea(archivo_t *archivo,const char* linea){
+	if (!archivo || !linea) return NULL;
+
+	int estado=fputs(linea,archivo->apertura);
+	if (estado==EOF) return false;
+	
+	return true;
 }
 
 int archivo_hay_mas_lineas(archivo_t *archivo)

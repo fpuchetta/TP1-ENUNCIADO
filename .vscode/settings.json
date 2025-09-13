@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "stdbool.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "functions.h": "c",
+        "archivo.h": "c",
+        "tp1.h": "c"
     }
 }
