@@ -3,6 +3,37 @@
 #include <stdio.h>
 #include <string.h>
 
+int cmp_por_nombre(const struct pokemon *pa, const struct pokemon *pb) {
+    int c = strcmp(pa->nombre, pb->nombre);   // usar strcoll si querés respetar locale
+    if (c != 0) return c;
+
+    if (pa->id < pb->id) return -1;
+    if (pa->id > pb->id) return  1;
+    return 0;
+}
+
+int cmp_por_id(const struct pokemon *pa, const struct pokemon *pb) {
+    if (pa->id < pb->id) return -1;
+    if (pa->id > pb->id) return  1;
+    return 0;
+}
+
+void ordenar_vec_pokemones(struct pokemon** pokemones,size_t cantidad,int (*cmp)(const struct pokemon *,const struct pokemon *)){
+    if (!pokemones || !cmp) return;
+
+    if (cantidad < 2) return;
+
+    for (size_t i = 0; i < cantidad - 1; i++) {
+        for (size_t j = 0; j < cantidad - i - 1; j++) {
+            if (cmp(pokemones[j],pokemones[j+1])>0) {
+                struct pokemon *tmp = pokemones[j];
+                pokemones[j] = pokemones[j + 1];
+                pokemones[j + 1] = tmp;
+            }
+        }
+    }
+}
+
 char *mi_strdup(const char *s)
 {
 	if (!s)

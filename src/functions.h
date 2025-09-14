@@ -1,6 +1,7 @@
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 #include "tp1.h"
+#include <string.h>
 
 #define MODO_LECTURA "r"
 #define MODO_ESCRITURA "w"
@@ -15,26 +16,12 @@
 
 typedef enum operacion { UNION, INTERSECCION, DIFERENCIA } operacion_t;
 
-/*
+int cmp_por_nombre(const struct pokemon *pa, const struct pokemon *pb);
 
-PROBLEMA ENCONTRADO: no puedo ordenar genericamente porq no tengo acceso a la estructura de tp1
-void ordenar_poks_generico(tp1_t* tp1,int (*cmp)(struct pokemon *, struct pokemon *)){
-    if (!tp1 || !cmp) return;
+int cmp_por_id(const struct pokemon *pa, const struct pokemon *pb);
 
-    size_t n = tp1_cantidad(tp1);
-    if (n < 2) return;
-
-    for (size_t i = 0; i < n - 1; i++) {
-        for (size_t j = 0; j < n - i - 1; j++) {
-            if (comparador()) {
-                struct pokemon *tmp = pokemons[j];
-                pokemons[j] = pokemons[j + 1];
-                pokemons[j + 1] = tmp;
-            }
-        }
-    }
-}
-*/
+//PROBLEMA ENCONTRADO: no puedo ordenar genericamente porq no tengo acceso a la estructura de tp1
+void ordenar_vec_pokemones(struct pokemon** pokemones,size_t cantidad,int (*cmp)(const struct pokemon *,const struct pokemon *));
 
 char *mi_strdup(const char *s);
 
