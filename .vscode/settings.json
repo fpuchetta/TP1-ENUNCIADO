@@ -4,6 +4,9 @@
         "cstdlib": "c",
         "functions.h": "c",
         "archivo.h": "c",
-        "tp1.h": "c"
+        "tp1.h": "c",
+        "string.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c"
     }
 }

@@ -113,11 +113,6 @@ const char *archivo_leer_linea(archivo_t *archivo)
 	return archivo->linea_leida;
 }
 
-/**
- * Escribe una linea en el archivo.
- * 
- * Devuelve true si se pudo escribir, false en caso contrario.
- */
 bool archivo_escribir_linea(archivo_t *archivo, const char *linea)
 {
 	if (!archivo || !linea)
